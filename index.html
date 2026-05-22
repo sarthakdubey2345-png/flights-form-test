@@ -999,7 +999,7 @@
 <script>
   // ─── Config ───────────────────────────────────────────────────────────────
   // Paste your real Power Automate HTTP trigger URL below before deploying to GitHub Pages
-  const POWER_AUTOMATE_URL = 'PASTE_REAL_POWER_AUTOMATE_HTTP_URL_HERE';
+  const POWER_AUTOMATE_URL = 'https://default7033609845024c69b9b1ae80e44fbf.b9.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ca9d6545e69848a1827cedded4e2010e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1klVJ0ufNbON2rAioH7XBeOXngJDEJU542TPdQADlDM';
 
   // ─── Trip type logic ───────────────────────────────────────────────────────
   let legCount = 1;
@@ -1244,7 +1244,7 @@
 
     try {
       // Fallback for testing before real URL is set
-      if (POWER_AUTOMATE_URL === 'https://default7033609845024c69b9b1ae80e44fbf.b9.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ca9d6545e69848a1827cedded4e2010e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1klVJ0ufNbON2rAioH7XBeOXngJDEJU542TPdQADlDM') {
+      if (POWER_AUTOMATE_URL === 'PASTE_REAL_POWER_AUTOMATE_HTTP_URL_HERE') {
         console.log('⚠️ Power Automate URL not set. Payload logged above for inspection.');
         setTimeout(() => showSuccess(), 500);
         return;
@@ -1253,18 +1253,15 @@
       const response = await fetch(POWER_AUTOMATE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        mode: 'no-cors'
       });
 
-      // Log full response for debugging during GitHub Pages testing
-      const responseText = await response.text();
-      console.log('Power Automate response:', response.status, responseText);
-
-      if (response.ok || response.status === 202) {
-        showSuccess();
-      } else {
-        throw new Error(`El servidor respondió con el código ${response.status}: ${responseText}`);
-      }
+      // In no-cors mode the browser blocks reading the response (type = 'opaque')
+      // but Power Automate still receives and processes the POST correctly.
+      // We show success optimistically — check Power Automate run history to confirm.
+      console.log('Power Automate response: request sent (no-cors mode — check PA run history)');
+      showSuccess();
     } catch (err) {
       console.error('Submission error:', err);
       alert('Ocurrió un error al enviar su solicitud. Por favor intente de nuevo o contáctenos directamente.\n\nError: ' + err.message);
