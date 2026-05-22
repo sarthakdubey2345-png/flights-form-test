@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitud de Cotización Aérea — Flight Booking Consortium</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #142040;
+    --navy-light: #1e3060;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-pale: #f5ecd4;
+    --cream: #faf8f3;
+    --white: #ffffff;
+    --text-dark: #0a1628;
+    --text-mid: #3a4a6b;
+    --text-muted: #7a8aab;
+    --border: rgba(10,22,40,0.12);
+    --border-gold: rgba(201,168,76,0.4);
+    --error: #c0392b;
+    --success: #1a7a4a;
+    --radius: 4px;
+    --radius-lg: 10px;
+    --shadow: 0 2px 24px rgba(10,22,40,0.08);
+    --shadow-lg: 0 8px 48px rgba(10,22,40,0.14);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 0%, rgba(201,168,76,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 90% 100%, rgba(10,22,40,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  .form-header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .brand-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--navy);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-icon svg { width: 24px; height: 24px; fill: var(--gold); }
+
+  .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--navy);
+    text-transform: uppercase;
+  }
+
+  .gold-rule {
+    width: 48px;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 24px;
+  }
+
+  .form-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 300;
+    color: var(--navy);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .form-header h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .form-header p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .required-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 12px;
+  }
+
+  .required-note::before {
+    content: '*';
+    color: var(--gold);
+    font-size: 16px;
+  }
+
+  /* Form card */
+  .form-card {
+    background: var(--white);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  /* Section */
+  .form-section {
+    padding: 32px 40px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .form-section:last-of-type { border-bottom: none; }
+
+  @media (max-width: 600px) {
+    .form-section { padding: 24px 20px; }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .section-num {
+    width: 28px;
+    height: 28px;
+    background: var(--navy);
+    color: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .section-title-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--navy);
+    letter-spacing: 0.02em;
+  }
+
+  /* Field groups */
+  .field-grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .field-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .field-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  @media (max-width: 600px) {
+    .field-grid.cols-2,
+    .field-grid.cols-3 { grid-template-columns: 1fr; }
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-mid);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  label .req { color: var(--gold); margin-left: 2px; font-size: 14px; line-height: 1; }
+
+  .hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: -2px;
+    line-height: 1.4;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+  }
+
+  input.error, select.error, textarea.error {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.08);
+  }
+
+  input.valid {
+    border-color: var(--success);
+  }
+
+  .error-msg {
+    font-size: 11px;
+    color: var(--error);
+    display: none;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .error-msg.show { display: flex; }
+
+  /* Phone field with flag */
+  .phone-wrap { position: relative; }
+
+  .phone-prefix {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--text-mid);
+    pointer-events: none;
+    font-weight: 500;
+  }
+
+  .phone-wrap input { padding-left: 52px; }
+
+  /* Email validation icon */
+  .input-wrap { position: relative; }
+
+  .validation-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    display: none;
+  }
+
+  .validation-icon.show { display: block; }
+  .validation-icon.ok { color: var(--success); }
+  .validation-icon.fail { color: var(--error); }
+
+  .input-wrap input { padding-right: 36px; }
+
+  /* Radio / Checkbox */
+  .radio-group, .check-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .radio-group.inline { flex-direction: row; flex-wrap: wrap; gap: 12px; }
+
+  .radio-opt, .check-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--cream);
+  }
+
+  .radio-opt:hover, .check-opt:hover {
+    border-color: var(--border-gold);
+    background: var(--gold-pale);
+  }
+
+  .radio-opt input, .check-opt input { display: none; }
+
+  .radio-dot {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+    background: white;
+  }
+
+  .radio-dot::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    transform: scale(0);
+    transition: transform 0.2s;
+  }
+
+  .radio-opt input:checked ~ .radio-dot { border-color: var(--gold); }
+  .radio-opt input:checked ~ .radio-dot::after { transform: scale(1); }
+
+  .radio-opt:has(input:checked),
+  .check-opt:has(input:checked) {
+    border-color: var(--gold);
+    background: var(--gold-pale);
+  }
+
+  .radio-label, .check-label {
+    font-size: 14px;
+    color: var(--text-dark);
+    line-height: 1.4;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .check-box::after {
+    content: '✓';
+    font-size: 11px;
+    color: var(--gold);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .check-opt input:checked ~ .check-box { border-color: var(--gold); }
+  .check-opt input:checked ~ .check-box::after { opacity: 1; }
+
+  /* Destination legs */
+  .legs-container { display: flex; flex-direction: column; gap: 16px; }
+
+  .leg-card {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    position: relative;
+    animation: slideIn 0.3s ease both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .leg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .leg-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .leg-label::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .remove-leg {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .remove-leg:hover { color: var(--error); background: rgba(192,57,43,0.06); }
+
+  .add-leg-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    background: none;
+    border: 1.5px dashed var(--border-gold);
+    border-radius: var(--radius);
+    color: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  .add-leg-btn:hover {
+    background: var(--gold-pale);
+    border-color: var(--gold);
+  }
+
+  /* Textarea */
+  textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+  /* Divider */
+  .section-divider {
+    height: 0.5px;
+    background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+    margin: 0 40px;
+  }
+
+  /* Submit area */
+  .submit-area {
+    padding: 32px 40px;
+    background: var(--cream);
+    border-top: 0.5px solid var(--border);
+    text-align: center;
+  }
+
+  @media (max-width: 600px) { .submit-area { padding: 24px 20px; } }
+
+  .submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 48px;
+    background: var(--navy);
+    color: var(--gold);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.15) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.4s;
+  }
+
+  .submit-btn:hover { background: var(--navy-mid); }
+  .submit-btn:hover::before { transform: translateX(100%); }
+  .submit-btn:active { transform: scale(0.98); }
+
+  .submit-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  .submit-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+
+  /* Success state */
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,22,40,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .success-overlay.show { display: flex; }
+
+  .success-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 440px;
+    width: 100%;
+    animation: fadeUp 0.4s ease;
+  }
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(26,122,74,0.1);
+    border: 2px solid rgba(26,122,74,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+    color: var(--success);
+    font-weight: 300;
+  }
+
+  .success-card h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+
+  .success-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .success-close {
+    margin-top: 24px;
+    padding: 11px 32px;
+    background: var(--navy);
+    color: var(--gold);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .success-close:hover { background: var(--navy-mid); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Coupon field toggle */
+  .coupon-input-wrap { display: none; margin-top: 12px; }
+  .coupon-input-wrap.show { display: block; animation: fadeUp 0.3s ease; }
+
+  /* Select arrow */
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: 12px;
+  }
+  .select-wrap select { padding-right: 32px; }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    animation: fadeUp 0.6s 0.05s ease both;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--navy), var(--gold));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* Cabin cards */
+  .cabin-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .cabin-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .cabin-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--cream);
+  }
+
+  .cabin-card:hover { border-color: var(--border-gold); background: var(--gold-pale); }
+  .cabin-card:has(input:checked) { border-color: var(--gold); background: var(--gold-pale); }
+
+  .cabin-card input { display: none; }
+  .cabin-name { font-size: 13px; font-weight: 500; color: var(--text-dark); text-transform: none; letter-spacing: 0; display: block; margin-bottom: 4px; }
+  .cabin-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; display: block; }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="form-header">
+    <div class="brand-lockup">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        </svg>
+      </div>
+      <span class="brand-name">Flight Booking Consortium</span>
+    </div>
+    <div class="gold-rule"></div>
+    <h1>Solicitud de <em>Cotización</em> Aérea</h1>
+    <p>Complete el formulario a continuación y nuestro equipo le responderá en menos de 24 horas con su cotización personalizada.</p>
+    <span class="required-note">Campos obligatorios</span>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="form-card">
+
+    <!-- Section 1: Personal Info -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <div class="section-title-text">Información de Contacto</div>
+      </div>
+      <div class="field-grid cols-2">
+        <!-- 1. Nombre -->
+        <div class="field-group">
+          <label for="nombre">Nombre <span class="req">*</span></label>
+          <input type="text" id="nombre" name="Nombre" placeholder="Su nombre completo" required autocomplete="name">
+          <span class="error-msg" id="err-nombre">⚠ Por favor ingrese su nombre</span>
+        </div>
+        <!-- 2. Nombre de la empresa -->
+        <div class="field-group">
+          <label for="empresa">Nombre de la empresa</label>
+          <input type="text" id="empresa" name="Nombre de la empresa" placeholder="Nombre de su empresa (opcional)" autocomplete="organization">
+        </div>
+        <!-- 3. Correo electrónico -->
+        <div class="field-group">
+          <label for="email">Correo electrónico <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="email" id="email" name="Correo electrónico" placeholder="sunombre@correo.com" required autocomplete="email" inputmode="email">
+            <span class="validation-icon" id="emailIcon"></span>
+          </div>
+          <span class="hint">Le enviaremos la confirmación de su cotización a este correo</span>
+          <span class="error-msg" id="err-email">⚠ Por favor ingrese un correo electrónico válido</span>
+        </div>
+        <!-- 4. WhatsApp o número de contacto -->
+        <div class="field-group">
+          <label for="whatsapp">WhatsApp o número de contacto <span class="req">*</span></label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">+</span>
+            <input type="tel" id="whatsapp" name="WhatsApp o número de contacto" placeholder="52 55 1234 5678" required autocomplete="tel" inputmode="tel" maxlength="20">
+          </div>
+          <span class="hint">Incluya el código de país — ej. 52 para México, 1 para Estados Unidos</span>
+          <span class="error-msg" id="err-whatsapp">⚠ Incluya el código de país (mín. 7 dígitos)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 2: Flight Details -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div class="section-title-text">Detalles del Vuelo</div>
+      </div>
+
+      <!-- Trip type toggle -->
+      <div class="field-group" style="margin-bottom: 24px;">
+        <label>Tipo de viaje <span class="req">*</span></label>
+        <div class="radio-group inline">
+          <label class="radio-opt">
+            <input type="radio" name="trip_type" value="single" checked onchange="setTripType('single')">
+            <span class="radio-dot"></span>
+            <span class="radio-label">Un solo destino</span>
+          </label>
+          <label class="radio-opt">
+            <input type="radio" name="trip_type" value="multi" onchange="setTripType('multi')">
+            <span class="radio-dot"></span>
+            <span class="radio-label">Multidestino</span>
+          </label>
+          <label class="radio-opt">
+            <input type="radio" name="trip_type" value="roundtrip" onchange="setTripType('roundtrip')">
+            <span class="radio-dot"></span>
+            <span class="radio-label">Ida y vuelta</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Legs container -->
+      <div class="legs-container" id="legsContainer">
+        <!-- Leg 1 is always shown -->
+        <div class="leg-card" id="leg-1">
+          <div class="leg-header">
+            <span class="leg-label">Tramo 1</span>
+          </div>
+          <div class="field-grid cols-3">
+            <!-- 5. Origen del viaje -->
+            <div class="field-group">
+              <label for="origen_1">Origen del viaje <span class="req">*</span></label>
+              <input type="text" id="origen_1" name="Origen del viaje" placeholder="Ej. Ciudad de México, MEX" required>
+              <span class="error-msg" id="err-origen_1">⚠ Ingrese ciudad o aeropuerto de origen</span>
+            </div>
+            <!-- 6. Destino del viaje -->
+            <div class="field-group">
+              <label for="destino_1">Destino del viaje <span class="req">*</span></label>
+              <input type="text" id="destino_1" name="Destino del viaje" placeholder="Ej. Cancún, CUN" required>
+              <span class="error-msg" id="err-destino_1">⚠ Ingrese ciudad o aeropuerto de destino</span>
+            </div>
+            <!-- 7. Fecha de salida -->
+            <div class="field-group">
+              <label for="salida_1">Fecha de salida <span class="req">*</span></label>
+              <input type="date" id="salida_1" name="Fecha de salida" required>
+              <span class="error-msg" id="err-salida_1">⚠ Seleccione la fecha de salida</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add leg button (hidden for single) -->
+      <button type="button" class="add-leg-btn" id="addLegBtn" style="display:none;" onclick="addLeg()">
+        + Agregar otro tramo
+      </button>
+
+      <!-- 8. Fecha de regreso (shown for round trip) -->
+      <div id="returnDateWrap" style="display:none; margin-top: 20px;">
+        <div class="field-group">
+          <label for="regreso">Fecha de regreso</label>
+          <input type="date" id="regreso" name="Fecha de regreso">
+          <span class="hint">Fecha de regreso para vuelos de ida y vuelta</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 3: Service Details -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <div class="section-title-text">Servicio y Pasajeros</div>
+      </div>
+      <div class="field-grid">
+        <!-- 9. Tipo de servicio -->
+        <div class="field-group">
+          <label>Tipo de servicio <span class="req">*</span></label>
+          <div class="radio-group inline">
+            <label class="radio-opt">
+              <input type="radio" name="Tipo de servicio" value="FIT (Individual) – 1 a 9 pasajeros" required>
+              <span class="radio-dot"></span>
+              <span class="radio-label">FIT (Individual) – 1 a 9 pasajeros</span>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="Tipo de servicio" value="GIT (Grupo) – 10 o más pasajeros">
+              <span class="radio-dot"></span>
+              <span class="radio-label">GIT (Grupo) – 10 o más pasajeros</span>
+            </label>
+          </div>
+          <span class="error-msg" id="err-servicio">⚠ Por favor seleccione el tipo de servicio</span>
+        </div>
+
+        <div class="field-grid cols-2">
+          <!-- 10. Número total de pasajeros -->
+          <div class="field-group">
+            <label for="pasajeros">Número total de pasajeros <span class="req">*</span></label>
+            <input type="number" id="pasajeros" name="Número total de pasajeros" min="1" max="500" placeholder="Ej. 2" required>
+            <span class="error-msg" id="err-pasajeros">⚠ Ingrese el número de pasajeros</span>
+          </div>
+          <!-- 11. Cantidad de infantes -->
+          <div class="field-group">
+            <label for="infantes">Cantidad de infantes (menores de 2 años)</label>
+            <input type="number" id="infantes" name="Cantidad de infantes (menores de 2 años)" min="0" max="100" placeholder="0 si no aplica">
+            <span class="hint">Bebés menores de 2 años</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 4: Preferences -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <div class="section-title-text">Preferencias de Viaje</div>
+      </div>
+      <div class="field-grid">
+        <!-- 12. Equipaje -->
+        <div class="field-group">
+          <label>Equipaje <span class="req">*</span></label>
+          <div class="radio-group inline">
+            <label class="radio-opt">
+              <input type="radio" name="Equipaje" value="Con equipaje documentado" required>
+              <span class="radio-dot"></span>
+              <span class="radio-label">Con equipaje documentado</span>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="Equipaje" value="Sin equipaje documentado">
+              <span class="radio-dot"></span>
+              <span class="radio-label">Sin equipaje documentado</span>
+            </label>
+          </div>
+          <span class="error-msg" id="err-equipaje">⚠ Por favor seleccione la opción de equipaje</span>
+        </div>
+
+        <!-- 13. Cabina -->
+        <div class="field-group">
+          <label>Cabina <span class="req">*</span></label>
+          <div class="cabin-grid">
+            <label class="cabin-card">
+              <input type="radio" name="Cabina" value="Economy" required>
+              <span class="cabin-name">Economy</span>
+              <span class="cabin-sub">Estándar</span>
+            </label>
+            <label class="cabin-card">
+              <input type="radio" name="Cabina" value="Premium economy">
+              <span class="cabin-name">Premium economy</span>
+              <span class="cabin-sub">Mayor comodidad</span>
+            </label>
+            <label class="cabin-card">
+              <input type="radio" name="Cabina" value="Business class">
+              <span class="cabin-name">Business class</span>
+              <span class="cabin-sub">Cama plana</span>
+            </label>
+            <label class="cabin-card">
+              <input type="radio" name="Cabina" value="First Class">
+              <span class="cabin-name">First Class</span>
+              <span class="cabin-sub">Ultra lujo</span>
+            </label>
+          </div>
+          <span class="error-msg" id="err-cabina">⚠ Por favor seleccione la clase de cabina</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Section 5: Additional Info -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <div class="section-title-text">Información Adicional</div>
+      </div>
+      <div class="field-grid">
+        <!-- 14. Cuéntenos más detalles -->
+        <div class="field-group">
+          <label for="detalles">Cuéntenos más detalles de su solicitud <span class="req">*</span></label>
+          <textarea id="detalles" name="Cuéntenos más detalles de su solicitud" placeholder="Cuéntenos sobre solicitudes especiales, aerolíneas preferidas, flexibilidad en fechas, preferencias de vuelos de conexión o cualquier otro detalle que nos ayude a encontrar la mejor opción para usted..." required></textarea>
+          <span class="error-msg" id="err-detalles">⚠ Por favor proporcione algunos detalles sobre su solicitud</span>
+        </div>
+
+        <!-- 15. Código de cupón -->
+        <div class="field-group">
+          <label>¿Cuenta con algún código de cupón o identificación como socio/agente de TITL? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt">
+              <input type="radio" name="cupon_tipo" value="Si, tengo un código de cupón" onchange="showCoupon('code')">
+              <span class="radio-dot"></span>
+              <span class="radio-label">Sí, tengo un código de cupón</span>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="cupon_tipo" value="Si, soy socio o agente de TITL" onchange="showCoupon('agent')">
+              <span class="radio-dot"></span>
+              <span class="radio-label">Sí, soy socio o agente de TITL</span>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="cupon_tipo" value="No, no aplica" onchange="showCoupon('none')" checked>
+              <span class="radio-dot"></span>
+              <span class="radio-label">No, no aplica</span>
+            </label>
+          </div>
+          <div class="coupon-input-wrap" id="couponInputWrap">
+            <input type="text" id="couponCode" name="Código de cupón o ID de agente" placeholder="Ingrese su código de cupón" style="margin-top:4px;">
+            <span class="hint">Ingréselo exactamente como fue proporcionado para asegurar su aplicación correcta</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-area">
+      <button type="button" class="submit-btn" onclick="submitForm()">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        Enviar Solicitud de Cotización
+      </button>
+      <p class="submit-note">Sus datos serán procesados de forma segura. Al enviar, acepta que un asesor se comunique con usted por los medios proporcionados.</p>
+    </div>
+
+  </div><!-- /form-card -->
+</div><!-- /page-wrap -->
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    <h2>¡Solicitud Enviada!</h2>
+    <p>Gracias por contactarnos. Hemos recibido su solicitud de cotización y nuestro equipo la revisará en menos de <strong>24 horas</strong>, comunicándose con usted por correo electrónico y WhatsApp.</p>
+    <br>
+    <p style="font-size:13px; color: var(--text-muted);">Por favor revise también su bandeja de correo no deseado por si nuestra respuesta llegara ahí.</p>
+    <button class="success-close" onclick="closeSuccess()">Cerrar</button>
+  </div>
+</div>
+
+<script>
+  // ─── Config ───────────────────────────────────────────────────────────────
+  // Paste your real Power Automate HTTP trigger URL below before deploying to GitHub Pages
+  const POWER_AUTOMATE_URL = 'PASTE_REAL_POWER_AUTOMATE_HTTP_URL_HERE';
+
+  // ─── Trip type logic ───────────────────────────────────────────────────────
+  let legCount = 1;
+
+  function setTripType(type) {
+    const addBtn = document.getElementById('addLegBtn');
+    const returnWrap = document.getElementById('returnDateWrap');
+    const extraLegs = document.querySelectorAll('.leg-card:not(#leg-1)');
+
+    if (type === 'single') {
+      addBtn.style.display = 'none';
+      returnWrap.style.display = 'none';
+      extraLegs.forEach(el => el.remove());
+      legCount = 1;
+    } else if (type === 'multi') {
+      addBtn.style.display = 'flex';
+      returnWrap.style.display = 'none';
+    } else if (type === 'roundtrip') {
+      addBtn.style.display = 'none';
+      returnWrap.style.display = 'block';
+      extraLegs.forEach(el => el.remove());
+      legCount = 1;
+    }
+    updateProgress();
+  }
+
+  function addLeg() {
+    legCount++;
+    const container = document.getElementById('legsContainer');
+    const div = document.createElement('div');
+    div.className = 'leg-card';
+    div.id = `leg-${legCount}`;
+    div.innerHTML = `
+      <div class="leg-header">
+        <span class="leg-label">Tramo ${legCount}</span>
+        <button type="button" class="remove-leg" onclick="removeLeg(${legCount})" title="Eliminar este tramo">✕</button>
+      </div>
+      <div class="field-grid cols-3">
+        <div class="field-group">
+          <label for="origen_${legCount}">Origen del viaje <span class="req">*</span></label>
+          <input type="text" id="origen_${legCount}" name="Origen del viaje ${legCount}" placeholder="Ej. Guadalajara, GDL">
+        </div>
+        <div class="field-group">
+          <label for="destino_${legCount}">Destino del viaje <span class="req">*</span></label>
+          <input type="text" id="destino_${legCount}" name="Destino del viaje ${legCount}" placeholder="Ej. Miami, MIA">
+        </div>
+        <div class="field-group">
+          <label for="salida_${legCount}">Fecha de salida <span class="req">*</span></label>
+          <input type="date" id="salida_${legCount}" name="Fecha de salida ${legCount}">
+        </div>
+      </div>`;
+    container.appendChild(div);
+    document.getElementById(`origen_${legCount}`).focus();
+    updateProgress();
+  }
+
+  function removeLeg(num) {
+    const el = document.getElementById(`leg-${num}`);
+    if (el) {
+      el.style.animation = 'none';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-8px)';
+      el.style.transition = 'all 0.2s ease';
+      setTimeout(() => el.remove(), 200);
+    }
+  }
+
+  // ─── Coupon toggle ─────────────────────────────────────────────────────────
+  function showCoupon(type) {
+    const wrap = document.getElementById('couponInputWrap');
+    const input = document.getElementById('couponCode');
+    if (type === 'none') {
+      wrap.classList.remove('show');
+      input.value = '';
+    } else {
+      wrap.classList.add('show');
+      input.placeholder = type === 'code' ? 'Ingrese su código de cupón' : 'Ingrese su ID de agente TITL';
+      input.focus();
+    }
+  }
+
+  // ─── Email validation ──────────────────────────────────────────────────────
+  const emailInput = document.getElementById('email');
+  const emailIcon = document.getElementById('emailIcon');
+
+  emailInput.addEventListener('input', () => {
+    const val = emailInput.value;
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    emailIcon.className = 'validation-icon show ' + (val.length > 3 ? (valid ? 'ok' : 'fail') : '');
+    emailIcon.textContent = val.length > 3 ? (valid ? '✓' : '✕') : '';
+    if (valid) { emailInput.classList.remove('error'); emailInput.classList.add('valid'); }
+    updateProgress();
+  });
+
+  // ─── Phone: allow only digits, spaces, dashes, plus ───────────────────────
+  document.getElementById('whatsapp').addEventListener('input', function () {
+    this.value = this.value.replace(/[^0-9\s\-\+]/g, '');
+    updateProgress();
+  });
+
+  // ─── Progress bar ──────────────────────────────────────────────────────────
+  function updateProgress() {
+    const fields = document.querySelectorAll('input[required], select[required], textarea[required]');
+    let filled = 0;
+    fields.forEach(f => {
+      if (f.type === 'radio') {
+        if (document.querySelector(`input[name="${f.name}"]:checked`)) filled++;
+      } else if (f.value.trim()) filled++;
+    });
+    const pct = Math.min(100, Math.round((filled / fields.length) * 100));
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', updateProgress);
+    el.addEventListener('change', updateProgress);
+  });
+
+  // Set min date to today
+  const today = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('input[type="date"]').forEach(d => d.min = today);
+
+  // ─── Validation ────────────────────────────────────────────────────────────
+  function validateForm() {
+    let valid = true;
+
+    function checkField(id, errId, testFn) {
+      const el = document.getElementById(id);
+      const err = document.getElementById(errId);
+      if (!el) return;
+      const ok = testFn(el.value.trim());
+      el.classList.toggle('error', !ok);
+      if (err) err.classList.toggle('show', !ok);
+      if (!ok) { valid = false; if (valid === false && !window._firstErr) window._firstErr = el; }
+    }
+
+    window._firstErr = null;
+
+    checkField('nombre', 'err-nombre', v => v.length >= 2);
+    checkField('email', 'err-email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+    checkField('whatsapp', 'err-whatsapp', v => v.replace(/\D/g,'').length >= 7);
+    checkField('origen_1', 'err-origen_1', v => v.length >= 2);
+    checkField('destino_1', 'err-destino_1', v => v.length >= 2);
+    checkField('salida_1', 'err-salida_1', v => v.length > 0);
+    checkField('pasajeros', 'err-pasajeros', v => parseInt(v) >= 1);
+    checkField('detalles', 'err-detalles', v => v.length >= 10);
+
+    if (!document.querySelector('input[name="Tipo de servicio"]:checked')) {
+      document.getElementById('err-servicio').classList.add('show'); valid = false;
+    } else {
+      document.getElementById('err-servicio').classList.remove('show');
+    }
+    if (!document.querySelector('input[name="Equipaje"]:checked')) {
+      document.getElementById('err-equipaje').classList.add('show'); valid = false;
+    } else {
+      document.getElementById('err-equipaje').classList.remove('show');
+    }
+    if (!document.querySelector('input[name="Cabina"]:checked')) {
+      document.getElementById('err-cabina').classList.add('show'); valid = false;
+    } else {
+      document.getElementById('err-cabina').classList.remove('show');
+    }
+
+    if (window._firstErr) {
+      window._firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return valid;
+  }
+
+  // ─── Collect legs data ─────────────────────────────────────────────────────
+  function collectLegs() {
+    const legs = [];
+    document.querySelectorAll('.leg-card').forEach((card, i) => {
+      const num = i + 1;
+      const origen = (document.getElementById(`origen_${num}`) || {}).value || '';
+      const destino = (document.getElementById(`destino_${num}`) || {}).value || '';
+      const fecha = (document.getElementById(`salida_${num}`) || {}).value || '';
+      if (origen || destino) legs.push({ leg: num, origen, destino, fecha_salida: fecha });
+    });
+    return legs;
+  }
+
+  // ─── Build payload for SharePoint / Power Automate ─────────────────────────
+  function buildPayload() {
+    const legs = collectLegs();
+    const tripType = document.querySelector('input[name="trip_type"]:checked')?.value || 'single';
+
+    // Keep original field names exactly for Power Automate mapping
+    const payload = {
+      // Contact
+      "Nombre": document.getElementById('nombre').value.trim(),
+      "Nombre de la empresa": document.getElementById('empresa').value.trim(),
+      "Correo electrónico": document.getElementById('email').value.trim(),
+      "WhatsApp o número de contacto": '+' + document.getElementById('whatsapp').value.trim(),
+
+      // Flight — Leg 1 keeps original field names for backward compatibility
+      "Origen del viaje": document.getElementById('origen_1')?.value.trim() || '',
+      "Destino del viaje": document.getElementById('destino_1')?.value.trim() || '',
+      "Fecha de salida": document.getElementById('salida_1')?.value || '',
+      "Fecha de regreso": document.getElementById('regreso')?.value || '',
+
+      // Multi-destination: extra legs as structured array + readable string
+      "Tipo de viaje": tripType === 'single' ? 'Single destination' : tripType === 'roundtrip' ? 'Round trip' : 'Multi-destination',
+      "Tramos adicionales": legs.length > 1 ? JSON.stringify(legs.slice(1)) : '',
+      "Resumen de ruta": legs.map(l => `${l.origen} → ${l.destino} (${l.fecha_salida})`).join(' | '),
+
+      // Passengers
+      "Tipo de servicio": document.querySelector('input[name="Tipo de servicio"]:checked')?.value || '',
+      "Número total de pasajeros": document.getElementById('pasajeros').value || '',
+      "Cantidad de infantes (menores de 2 años)": document.getElementById('infantes').value || '0',
+
+      // Preferences
+      "Equipaje": document.querySelector('input[name="Equipaje"]:checked')?.value || '',
+      "Cabina": document.querySelector('input[name="Cabina"]:checked')?.value || '',
+
+      // Additional
+      "Cuéntenos más detalles de su solicitud": document.getElementById('detalles').value.trim(),
+      "¿Cuenta con algún código de cupón o identificación como socio/agente de TITL?": document.querySelector('input[name="cupon_tipo"]:checked')?.value || '',
+      "Código de cupón o ID de agente": document.getElementById('couponCode')?.value.trim() || '',
+
+      // Meta
+      "Timestamp": new Date().toISOString(),
+      "Form source": "Website — solicitud-cotizacion-aerea"
+    };
+
+    return payload;
+  }
+
+  // ─── Submit ────────────────────────────────────────────────────────────────
+  async function submitForm() {
+    if (!validateForm()) return;
+
+    const btn = document.querySelector('.submit-btn');
+    btn.textContent = 'Enviando…';
+    btn.disabled = true;
+
+    const payload = buildPayload();
+
+    // Debug: log full payload to browser console before sending
+    console.log('Submitting payload:', payload);
+
+    try {
+      // Fallback for testing before real URL is set
+      if (POWER_AUTOMATE_URL === 'PASTE_REAL_POWER_AUTOMATE_HTTP_URL_HERE') {
+        console.log('⚠️ Power Automate URL not set. Payload logged above for inspection.');
+        setTimeout(() => showSuccess(), 500);
+        return;
+      }
+
+      const response = await fetch(POWER_AUTOMATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      // Log full response for debugging during GitHub Pages testing
+      const responseText = await response.text();
+      console.log('Power Automate response:', response.status, responseText);
+
+      if (response.ok || response.status === 202) {
+        showSuccess();
+      } else {
+        throw new Error(`El servidor respondió con el código ${response.status}: ${responseText}`);
+      }
+    } catch (err) {
+      console.error('Submission error:', err);
+      alert('Ocurrió un error al enviar su solicitud. Por favor intente de nuevo o contáctenos directamente.\n\nError: ' + err.message);
+    } finally {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Enviar Solicitud de Cotización`;
+      btn.disabled = false;
+    }
+  }
+
+  function showSuccess() {
+    document.getElementById('successOverlay').classList.add('show');
+    document.getElementById('progressFill').style.width = '100%';
+  }
+
+  function closeSuccess() {
+    document.getElementById('successOverlay').classList.remove('show');
+  }
+
+  // Initial progress update
+  updateProgress();
+</script>
+</body>
+</html>
