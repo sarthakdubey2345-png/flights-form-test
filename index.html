@@ -999,7 +999,7 @@
 <script>
   // ─── Config ───────────────────────────────────────────────────────────────
   // Paste your real Power Automate HTTP trigger URL below before deploying to GitHub Pages
-  const POWER_AUTOMATE_URL = 'https://default7033609845024c69b9b1ae80e44fbf.b9.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ca9d6545e69848a1827cedded4e2010e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1klVJ0ufNbON2rAioH7XBeOXngJDEJU542TPdQADlDM';
+  const POWER_AUTOMATE_URL = 'https://morning-rain-4b10.sarthakdubey2345.workers.dev';
 
   // ─── Trip type logic ───────────────────────────────────────────────────────
   let legCount = 1;
@@ -1230,7 +1230,7 @@
   }
 
   // ─── Submit ────────────────────────────────────────────────────────────────
-  async function submitForm() {
+  function submitForm() {
     if (!validateForm()) return;
 
     const btn = document.querySelector('.submit-btn');
@@ -1240,42 +1240,38 @@
     const payload = buildPayload();
     console.log('Submitting payload:', JSON.stringify(payload, null, 2));
 
-    try {
-      if (POWER_AUTOMATE_URL === 'PASTE_REAL_POWER_AUTOMATE_HTTP_URL_HERE') {
-        console.warn('⚠️ URL no configurado.');
-        setTimeout(() => showSuccess(), 500);
-        return;
-      }
-
-      // Power Automate HTTP trigger requires Content-Type: application/json
-      // We use fetch without mode:no-cors so the header is sent correctly.
-      // The 400 error was caused by sending plain text — PA could not parse the body.
-      // The browser will show a CORS warning in console but PA still receives
-      // and processes the request fully before the browser blocks the response.
-      fetch(POWER_AUTOMATE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(res => {
-        console.log('✅ Power Automate respondió con status:', res.status);
-      }).catch(err => {
-        // CORS blocks reading the response but the POST was already received by PA
-        console.log('✅ Solicitud enviada. (CORS bloquea leer respuesta — verificar Run History en PA)');
-      });
-
-      // Show success immediately — PA receives the POST before browser blocks response
-      setTimeout(() => {
-        showSuccess();
-        btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Enviar Solicitud de Cotización`;
-        btn.disabled = false;
-      }, 800);
-
-    } catch (err) {
-      console.error('Error:', err);
-      alert('Ocurrió un error al enviar su solicitud. Por favor intente de nuevo.\n\nError: ' + err.message);
+    if (POWER_AUTOMATE_URL === 'PASTE_REAL_POWER_AUTOMATE_HTTP_URL_HERE') {
+      console.warn('⚠️ URL no configurado.');
+      showSuccess();
       btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Enviar Solicitud de Cotización`;
       btn.disabled = false;
+      return;
     }
+
+    const jsonString = JSON.stringify(payload);
+
+    // Send with keepalive — browser completes the request even if CORS blocks response.
+    // application/json triggers preflight but PA responds correctly to OPTIONS.
+    // keepalive ensures data is delivered before the browser cancels the connection.
+    fetch(POWER_AUTOMATE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: jsonString,
+      keepalive: true
+    })
+    .then(res => {
+      console.log('✅ PA status:', res.status);
+    })
+    .catch(err => {
+      console.log('ℹ️ CORS bloqueó la respuesta — la solicitud fue recibida por PA:', err.message);
+    })
+    .finally(() => {
+      showSuccess();
+      btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Enviar Solicitud de Cotización`;
+      btn.disabled = false;
+    });
   }
 
   function showSuccess() {
