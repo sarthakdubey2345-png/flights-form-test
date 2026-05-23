@@ -1244,23 +1244,26 @@
 
     try {
       // Fallback for testing before real URL is set
-      if (POWER_AUTOMATE_URL === 'https://default7033609845024c69b9b1ae80e44fbf.b9.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ca9d6545e69848a1827cedded4e2010e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1klVJ0ufNbON2rAioH7XBeOXngJDEJU542TPdQADlDM') {
+      if (POWER_AUTOMATE_URL === 'PASTE_REAL_POWER_AUTOMATE_HTTP_URL_HERE') {
         console.log('⚠️ Power Automate URL not set. Payload logged above for inspection.');
         setTimeout(() => showSuccess(), 500);
         return;
       }
 
+      // no-cors mode: browser strips custom headers like Content-Type: application/json
+      // Solution: send body as a plain text Blob — no-cors allows this and
+      // Power Automate receives the raw JSON string correctly in the request body.
+      const blob = new Blob([JSON.stringify(payload)], { type: 'text/plain' });
+
       const response = await fetch(POWER_AUTOMATE_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: blob,
         mode: 'no-cors'
       });
 
-      // In no-cors mode the browser blocks reading the response (type = 'opaque')
-      // but Power Automate still receives and processes the POST correctly.
-      // We show success optimistically — check Power Automate run history to confirm.
-      console.log('Power Automate response: request sent (no-cors mode — check PA run history)');
+      // Response is opaque in no-cors — we cannot read status.
+      // Verify by checking Power Automate Run History after submission.
+      console.log('Power Automate: solicitud enviada. Verificar en historial de ejecuciones de Power Automate.');
       showSuccess();
     } catch (err) {
       console.error('Submission error:', err);
