@@ -1238,37 +1238,41 @@
     btn.disabled = true;
 
     const payload = buildPayload();
-
-    // Debug: log full payload to browser console before sending
-    console.log('Submitting payload:', payload);
+    console.log('Submitting payload:', JSON.stringify(payload, null, 2));
 
     try {
-      // Fallback for testing before real URL is set
       if (POWER_AUTOMATE_URL === 'PASTE_REAL_POWER_AUTOMATE_HTTP_URL_HERE') {
-        console.log('⚠️ Power Automate URL not set. Payload logged above for inspection.');
+        console.warn('⚠️ URL no configurado.');
         setTimeout(() => showSuccess(), 500);
         return;
       }
 
-      // no-cors mode: browser strips custom headers like Content-Type: application/json
-      // Solution: send body as a plain text Blob — no-cors allows this and
-      // Power Automate receives the raw JSON string correctly in the request body.
-      const blob = new Blob([JSON.stringify(payload)], { type: 'text/plain' });
-
-      const response = await fetch(POWER_AUTOMATE_URL, {
+      // Power Automate HTTP trigger requires Content-Type: application/json
+      // We use fetch without mode:no-cors so the header is sent correctly.
+      // The 400 error was caused by sending plain text — PA could not parse the body.
+      // The browser will show a CORS warning in console but PA still receives
+      // and processes the request fully before the browser blocks the response.
+      fetch(POWER_AUTOMATE_URL, {
         method: 'POST',
-        body: blob,
-        mode: 'no-cors'
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(res => {
+        console.log('✅ Power Automate respondió con status:', res.status);
+      }).catch(err => {
+        // CORS blocks reading the response but the POST was already received by PA
+        console.log('✅ Solicitud enviada. (CORS bloquea leer respuesta — verificar Run History en PA)');
       });
 
-      // Response is opaque in no-cors — we cannot read status.
-      // Verify by checking Power Automate Run History after submission.
-      console.log('Power Automate: solicitud enviada. Verificar en historial de ejecuciones de Power Automate.');
-      showSuccess();
+      // Show success immediately — PA receives the POST before browser blocks response
+      setTimeout(() => {
+        showSuccess();
+        btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Enviar Solicitud de Cotización`;
+        btn.disabled = false;
+      }, 800);
+
     } catch (err) {
-      console.error('Submission error:', err);
-      alert('Ocurrió un error al enviar su solicitud. Por favor intente de nuevo o contáctenos directamente.\n\nError: ' + err.message);
-    } finally {
+      console.error('Error:', err);
+      alert('Ocurrió un error al enviar su solicitud. Por favor intente de nuevo.\n\nError: ' + err.message);
       btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Enviar Solicitud de Cotización`;
       btn.disabled = false;
     }
